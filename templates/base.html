@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <title>
+            {% block title %}{% endblock %}
+        </title>
+        <h1 id="header">
+            {% block head %}{% endblock %}
+        </h1>
+    </head>
+    <body>
+            {% block nav %}
+
+            {% endblock %}
+    </body>
+    {% block body %}
+    {% endblock %}
+</html>
+<style>
+        h1#error{
+            color:red
+        }
+        p1#error{
+            color: red
+        }
+        h1#header {
+            color: blue;
+        }
+       nav {
+            background-color: black;
+            width: 50%;
+        }
+
+        nav ul {
+            padding: 10px;
+            margin: 0px;
+            list-style-type: none;
+        }
+
+        nav ul li {
+            display: inline;
+            padding: 5px;
+        }
+
+        nav ul li a:link, nav ul li a:visited {
+            color: white;
+        }
+
+        nav ul li a:hover {
+            color: green;
+        }
+
+        nav ul li.selected {
+            background-color: silver;
+        }
+
+
+        table {
+            margin-left: 20px;
+            margin-right: 20px;
+            border: thin solid black;
+            caption-side: bottom;
+        }
+
+        td, th {
+            border: thin dotted black;
+            padding: 5px;
+        }
+        tr:nth-child(even) {
+            background-color: grey;
+        }
+        tr:nth-child(odd) {
+            color: white;
+            background-color: black;
+        }
+</style>
