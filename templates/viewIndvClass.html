@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}View Individual Class{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block nav %}
+
+<nav>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-container">
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/createuser">Create New User</a></li>
+                    <li><a href="/login">Login</a></li>
+                </ul>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block body %}
+
+<style>
+
+    /* Hamburger menu icon */
+.menu-icon {
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: black;
+    margin-bottom: 5px;
+}
+
+
+.menu-container {
+    display: none;
+    position: absolute;
+    background-color: black;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.menu-container ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-container li a {
+    display: block;
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+}
+
+.menu-container li a:hover {
+    background-color: #ddd;
+}
+    .form-container {
+      /* box-shadow: 5px 5px lightblue; Can be added back in I just think it looks bad */
+      border: 3px solid #ccc;
+      padding: 20px;
+      text-align: center;
+      border-radius: 15px;
+      width: 30%;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    label {
+      margin-bottom: 5px;
+    }
+
+</style>
+
+<script>
+const menuIcon = document.querySelector('.menu-icon');
+const menuContainer = document.querySelector('.menu-container');
+
+menuIcon.addEventListener('click', () => {
+    menuContainer.style.display = menuContainer.style.display === 'none' ? 'block' : 'none';
+});
+
+    document.addEventListener("DOMContentLoaded", function() {
+    var classTypes = {{ class_types | default([]) | tojson }};
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/viewIndvClass?class_types=" + JSON.stringify(classTypes), true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // Request was successful
+            console.log("Response:", xhr.responseText);
+        }
+    };
+    xhr.send();
+});
+</script>
+
+<div class="form-container">
+    <h1>Individual Classes:</h1>
+    {% for class in class_info %}
+        <form>
+            <h2>Name: {{class.Type}}</h2>
+            <p2>Instructor: {{class.Instructor}}</p2>
+            <p2>Days of Week: {{class.days_of_week}}</p2>
+            <p2>Time: {{class.Time}}</p2>
+        </form>
+    {% endfor %}
+    <a href="/classes">Back To Calendar</a>
+</div>
+
+{% if uniqueName == False %}
+<h3>Incorrect Email or Password</h3>
+{% endif %}
+
+{% endblock %}

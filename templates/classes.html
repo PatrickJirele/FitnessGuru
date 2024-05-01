@@ -133,25 +133,24 @@ body {font-family: Verdana, sans-serif;}
     font-size: 14px;
     color: #777;
     border: 1px solid #ccc;
-    height: 100px; /* Adjust the height as needed */
+    height: 100px; /* Adjusted height to fit content */
     line-height: 100px; /* Center the content vertically */
     box-sizing: border-box; /* Ensure that padding and border are included in the width */
     position: relative; /* Add position relative for absolute positioning of span */
 }
 
 .days li a {
-    display: inline-block;
+    display: block;
     width: 100%;
     height: 100%;
-    line-height: 100px; /* Center the text vertically */
     text-decoration: none;
-    color: #333; /* Text color */
-    background-color: #f8f9fa; /* Light grey color for regular state */
-    transition: background-color 0.3s ease; /* Smooth transition */
+    color: #333;
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
 }
 
 .days li a:hover {
-    background-color: #343a40; /* Dark grey color on hover */
+    background-color: #76848c;
 }
 
 .days li span {
@@ -163,8 +162,6 @@ body {font-family: Verdana, sans-serif;}
     font-size: 10px; /* Adjust the font size of the placeholder */
     color: #777; /* Adjust the color of the placeholder */
 }
-
-
 </style>
 
 
@@ -182,28 +179,31 @@ menuIcon.addEventListener('click', () => {
   <ul>
     <li>
       May<br>
-      <span style="font-size:18px">2024</span>
+      <span style="font-size:18px">2033</span>
     </li>
   </ul>
 </div>
 <ul class="days">
     {% for day in range(1, 32) %}
-        <li>
-            <a href="/viewIndvClass">
+    <li>
+        {% set class_types = [] %}
+        {% for class_type, class_days in days.items() %}
+            {% if day in class_days %}
+                {% if class_types.append(class_type) %}{% endif %}
+            {% endif %}
+        {% endfor %}
+        {% if class_types %}
+            <a href="/viewIndvClass?day={{ day }}&class_types={{ class_types|join(',') }}">
                 <div>{{ day }}</div>
-                <span>
-                    {% for class_type, class_days in days.items() %}
-                        {% if day in class_days %}
-                            {{ class_type }}
-                            :
-                        {% endif %}
-                    {% endfor %}
-                    {% if day not in class_days %}
-
-                    {% endif %}
-                </span>
+                <span>{{ class_types|join(', ') }}</span>
             </a>
-        </li>
+        {% else %}
+            <a href="/viewIndvClass?day={{ day }}">
+                <div>{{ day }}</div>
+                <span></span>
+            </a>
+        {% endif %}
+    </li>
     {% endfor %}
 </ul>
 

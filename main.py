@@ -10,12 +10,14 @@ app.config['SECRET_KEY'] = 'secretKey'
 login_manager = LoginManager(app)
 db = SQLAlchemy(app)
 
+
 class Benefit(db.Model):
     __tablename__ = "benefit"
     Benefit_ID = db.Column(db.Integer, primary_key=True)
     Area = db.Column(db.String(50))
     Type = db.Column(db.String(50))
     memberTier = db.relationship('Benefit_Tier', backref='Benefit', lazy='dynamic')
+
 
 class Membership_tier(db.Model):
     __tablename__ = "Membership_tier"
@@ -25,9 +27,11 @@ class Membership_tier(db.Model):
     Length = db.Column(db.Integer)
     benefit = db.relationship('Benefit_Tier', backref='membershiptier', lazy='dynamic')
 
+
 class Benefit_Tier(db.Model):
     Tier_ID = db.Column(db.Integer, db.ForeignKey('Membership_tier.ID'), primary_key=True)
     Benefit_ID = db.Column(db.Integer, db.ForeignKey('benefit.Benefit_ID'), primary_key=True)
+
 
 class Member(UserMixin, db.Model):
     __tablename__ = "member"
@@ -59,6 +63,7 @@ class ClassXMember(db.Model):
     start_date = db.Column(db.String(50))
     end_date = db.Column(db.String(50))
 
+
 class Class(db.Model):
     __tablename__ = 'class'
     Class_ID = db.Column(db.Integer, primary_key=True)
@@ -79,6 +84,7 @@ class ExerciseXMember(db.Model):
     start_date = db.Column(db.String(50))
     end_date = db.Column(db.String(50))
 
+
 class Exercise(db.Model):
     __tablename__ = 'exercise'
     Exercise_ID = db.Column(db.Integer, primary_key=True)
@@ -88,10 +94,12 @@ class Exercise(db.Model):
     Weight = db.Column(db.Double)
     Sets = db.Column(db.Integer)
 
+
 @app.route('/')
 def home():
     login = False
     return render_template('home.html', login=login)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -114,24 +122,28 @@ def login():
         uniqueName = True
         return render_template('login.html')
 
+
 app.app_context().push()
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return Member.query.get(int(user_id))
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    login=False
+    login = False
     return render_template('home.html', login=login)
+
 
 @app.route('/createuser', methods=['POST', 'GET'])
 def createsuer():
     trainers = Trainer.query.all()
     if request.method == 'POST':
-        Email= request.form['email']
+        Email = request.form['email']
         Fname = request.form['Fname']
         Lname = request.form['Lname']
         Password = request.form['password']
@@ -166,12 +178,13 @@ def createsuer():
         db.session.commit()
         user = Member.query.filter_by(Email=Email).first()
         login_user(user)
-        login=True
+        login = True
         return render_template('home.html', login=login, Fname=Fname)
 
     elif request.method == 'GET':
         uniqueName = True
-        return render_template('createuser.html',uniqueName=uniqueName ,trainers=trainers)
+        return render_template('createuser.html', uniqueName=uniqueName, trainers=trainers)
+
 
 @login_required
 @app.route("/classes", methods=['POST', 'GET'])
@@ -194,12 +207,25 @@ def classes():
             for i in range(3, 32, 7):
                 days[class_type].extend([i, i + 2])
 
-    print(days)
     return render_template("classes.html", login=True, class_info=class_info, days=days)
+
+
 @login_required
 @app.route("/viewIndvClass", methods=['POST', 'GET'])
 def viewIndvClass():
-    return render_template("viewIndvClass.html")
+    class_info = []
+    if request.method == 'GET':
+        if 'class_types' in request.args:
+            class_types = request.args.get('class_types')
+            class_types = class_types.split(",")
+            print(class_types)
+            for class_name in class_types:
+                classes = Class.query.filter_by(Type=class_name).all()  # Retrieve all classes with the given class name
+                class_info.extend(classes)
+
+            return render_template("viewIndvClass.html", login=True, class_info=class_info)
+    else:
+        return render_template("viewIndvClass.html", login=True)
 
 if __name__ == '__main__':
     app.run()
