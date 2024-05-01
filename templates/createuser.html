@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Login User{% endblock %}
+{% block title %}Create User{% endblock %}
 
 {% block head %}{% endblock %}
 
@@ -23,7 +23,9 @@
 {% endblock %}
 
 {% block body %}
-
+{% if test == False %}
+<h3>Please enter all fields</h3>
+{% endif %}
 <style>
 
     /* Hamburger menu icon */
@@ -67,7 +69,7 @@
 .menu-container li a:hover {
     background-color: #ddd;
 }
-    .login-form-container {
+    .createuser-form-container {
       /* box-shadow: 5px 5px lightblue; Can be added back in I just think it looks bad */
       border: 3px solid #ccc;
       padding: 20px;
@@ -116,7 +118,7 @@
         background-color: #9a9a9a;
     }
 
-    .login_header{
+    .createuser_header{
         vertical-align:middle;
         margin:auto;
         horizontal-align:middle;
@@ -134,22 +136,44 @@ menuIcon.addEventListener('click', () => {
 </script>
 
 <html>
-<div class="login-form-container">
-    <form action="/login" method='POST'>
-        <h1 class="login_header">Login</h1>
+<div class="createuser-form-container">
+    <form action="/createuser" method='POST'>
+        <h1 class="createUser_header">Create New User</h1>
         <label for="username">Email:</label>
-        <input type="text" name="username" class="username">
+        <input type="text" name="email" class="username">
+        <br>
+        <label for="Fname">First Name:</label>
+        <input type="text" name="Fname" class="username">
+        <br>
+        <label for="Lname">Last Name:</label>
+        <input type="text" name="Lname" class="username">
         <br>
         <label for="password">Password:</label>
         <input type="password" name="password" class="pWord">
         <br>
+        <label for="DOB">DOB (mm/dd/yyyy):</label>
+        <input type="text" name="DOB" class="pWord">
+        <br>
+        <label for="Tier">Membership Tier:</label>
+        <select id="membership_tier" name="membership_tier">
+            <option value="Gold">Gold</option>
+            <option value="Silver">Silver</option>
+            <option value="Bronze">Bronze</option>
+        </select>
+        <label for="trainers">Available Trainers to choose from:</label>
+        <select id="trainer" name="trainers">
+            {% for trainer in trainers %}
+            <option value="{{trainer.Trainer_ID}}">{{trainer.Fname}}</option>
+             {% endfor %}
+        </select>
         <input type="submit" name="submit" class="submit">
     </form>
 </div>
 </html>
 
 {% if uniqueName == False %}
-<h3>Incorrect Email or Password</h3>
+<h3>Email already in use... try again</h3>
 {% endif %}
+
 
 {% endblock %}

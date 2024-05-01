@@ -1,41 +1,101 @@
 {% extends "base.html" %}
 
-{% block title %}HOME{% endblock %}
+{% block title %}Fitness Guru Inc. {% endblock %}
 
-{% block head %} THIS IS THE HOME PAGE!!!! {% endblock %}
+{% block head %}{% endblock %}
 
 {% block nav %}
-    {% if login %}
-        <nav>
-            <ul>
-                <li>
-                    <a href="/create">Create New Entry</a>
-                </li>
-                <li>
-                    <a href="/read">Retrieve</a>
-                </li>
-                <li>
-                    <a href="/logout">Logout</a>
-                </li>
-            </ul>
-        </nav>
-    {% else %}
-        <nav>
-            <ul>
-                <li>
-                    <a href="/">HOME</a>
-                </li>
-                <li>
-                    <a href="/createUser">Create New User</a>
-                </li>
-                <li>
-                    <a href="/login">Login</a>
-                </li>
-            </ul>
-        </nav>
-    {% endif %}
+    <nav>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-container">
+            {% if login %}
+                <ul>
+                    <li><a href="/classes">View Classes</a></li>
+                    <li><a href="/program">My Program</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            {% else %}
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/createuser">Create New User</a></li>
+                    <li><a href="/login">Login</a></li>
+                </ul>
+            {% endif %}
+        </div>
+    </nav>
 {% endblock %}
 
-
 {% block body %}
+<style>
+/* Hamburger menu icon */
+.menu-icon {
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: black;
+    margin-bottom: 5px;
+}
+
+
+.menu-container {
+    display: none;
+    position: absolute;
+    background-color: black;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.menu-container ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-container li a {
+    display: block;
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+}
+
+.menu-container li a:hover {
+    background-color: #ddd;
+}
+  .welcome_page {
+    width: 500px; /* Set the width of your div */
+    margin: 0 auto; /* Set the top and bottom margins to 0 and the left and right margins to auto */
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+</style>
+
+<script>
+const menuIcon = document.querySelector('.menu-icon');
+const menuContainer = document.querySelector('.menu-container');
+
+menuIcon.addEventListener('click', () => {
+    menuContainer.style.display = menuContainer.style.display === 'none' ? 'block' : 'none';
+});
+
+</script>
+
+<div class="welcome_page">
+    <h1 class="welcome_page">Welcome to Fitness Guru!</h1>
+    {% if login %}
+    <br>
+    <h2 class="welcome_page">Hello, {{Fname}}</h2>
+    {% endif %}
+</div>
+
 {% endblock %}

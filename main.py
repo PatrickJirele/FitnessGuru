@@ -17,16 +17,16 @@ class Benefit(db.Model):
     Type = db.Column(db.String(50))
     memberTier = db.relationship('Benefit_Tier', backref='Benefit', lazy='dynamic')
 
-class Membership_Tier(db.Model):
-    __tablename__ = "membershiptier"
+class Membership_tier(db.Model):
+    __tablename__ = "Membership_tier"
     ID = db.Column(db.Integer, primary_key=True)
     Name = db.Column(db.String(50))
     Price = db.Column(db.Integer)
-    Duration = db.Column(db.Integer)
+    Length = db.Column(db.Integer)
     benefit = db.relationship('Benefit_Tier', backref='membershiptier', lazy='dynamic')
 
 class Benefit_Tier(db.Model):
-    Tier_ID = db.Column(db.Integer, db.ForeignKey('membershiptier.ID'), primary_key=True)
+    Tier_ID = db.Column(db.Integer, db.ForeignKey('Membership_tier.ID'), primary_key=True)
     Benefit_ID = db.Column(db.Integer, db.ForeignKey('benefit.Benefit_ID'), primary_key=True)
 
 class Member(UserMixin, db.Model):
@@ -37,7 +37,7 @@ class Member(UserMixin, db.Model):
     DOB = db.Column(db.String(50))
     Email = db.Column(db.String(50))
     Password = db.Column(db.String(50))
-    Tier_ID = db.Column(db.String(50), db.ForeignKey('membershiptier.ID'))
+    Tier_ID = db.Column(db.String(50), db.ForeignKey('Membership_tier.ID'))
     Trainer_ID = db.Column(db.Integer, db.ForeignKey('trainer.Trainer_ID'))
 
     def get_id(self):
@@ -101,13 +101,14 @@ def login():
 
         user = Member.query.filter_by(Email=Email).first()
 
-        if Email != user.Email or Password != user.Password:
+        if user == None or Email != user.Email or Password != user.Password:
             uniqueName = False
             return render_template('login.html', uniqueName=uniqueName)
 
         login_user(user)
+        Fname = user.Fname
         login = True
-        return render_template('home.html', login=login)
+        return render_template('home.html', login=login, Fname=Fname)
 
     elif request.method == 'GET':
         uniqueName = True
@@ -126,7 +127,79 @@ def logout():
     login=False
     return render_template('home.html', login=login)
 
+@app.route('/createuser', methods=['POST', 'GET'])
+def createsuer():
+    trainers = Trainer.query.all()
+    if request.method == 'POST':
+        Email= request.form['email']
+        Fname = request.form['Fname']
+        Lname = request.form['Lname']
+        Password = request.form['password']
+        DOB = request.form['DOB']
+        Membershiptier = request.form['membership_tier']
+        trainer = request.form['trainers']
 
+        if Email == '' or Fname == '' or Lname == '' or Password == '' or DOB == '' or Membershiptier == '' or trainer == '':
+            test = False
+            uniqueName = True
+            return render_template('createuser.html', uniqueName=uniqueName, trainers=trainers, test=test)
+
+        tier = db.session.query(Membership_tier.ID).filter_by(Name=Membershiptier).scalar()
+        trainer = db.session.query(Trainer.Trainer_ID).filter_by(Trainer_ID=trainer).scalar()
+
+        tempUser = Member(
+            Fname=Fname,
+            Lname=Lname,
+            DOB=DOB,
+            Email=Email,
+            Password=Password,
+            Tier_ID=tier,
+            Trainer_ID=trainer
+        )
+        user = Member.query.filter_by(Email=request.form['email']).first()
+
+        if user != None:
+            uniqueName = False
+            return render_template('createuser.html', uniqueName=uniqueName, trainers=trainers)
+
+        db.session.add(tempUser)
+        db.session.commit()
+        user = Member.query.filter_by(Email=Email).first()
+        login_user(user)
+        login=True
+        return render_template('home.html', login=login, Fname=Fname)
+
+    elif request.method == 'GET':
+        uniqueName = True
+        return render_template('createuser.html',uniqueName=uniqueName ,trainers=trainers)
+
+@login_required
+@app.route("/classes", methods=['POST', 'GET'])
+def classes():
+    user = current_user
+    user_classes = db.session.query(Class, ClassXMember).join(ClassXMember).filter(
+        ClassXMember.Member_ID == user.Member_ID).all()
+
+    class_info = [(class_.Type, class_.days_of_week) for class_, _ in user_classes]
+
+    days = {}
+    for class_type, days_of_week in class_info:
+        days_of_week = days_of_week.strip()  # Remove any leading or trailing spaces
+        if days_of_week == "MWF":
+            days[class_type] = []
+            for i in range(2, 32, 7):
+                days[class_type].extend([i, i + 2, i + 4])
+        elif days_of_week == "TR":
+            days[class_type] = []
+            for i in range(3, 32, 7):
+                days[class_type].extend([i, i + 2])
+
+    print(days)
+    return render_template("classes.html", login=True, class_info=class_info, days=days)
+@login_required
+@app.route("/viewIndvClass", methods=['POST', 'GET'])
+def viewIndvClass():
+    return render_template("viewIndvClass.html")
 
 if __name__ == '__main__':
     app.run()
