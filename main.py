@@ -1,5 +1,5 @@
 import flask
-from flask import Flask, render_template, request, redirect, jsonify, flash
+from flask import Flask, render_template, request, redirect, jsonify, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import not_
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
@@ -60,8 +60,6 @@ class ClassXMember(db.Model):
     __tablename__ = 'classxmember'
     Member_ID = db.Column(db.Integer, db.ForeignKey('member.Member_ID'), primary_key=True)
     Class_ID = db.Column(db.Integer, db.ForeignKey('class.Class_ID'), primary_key=True)
-    start_date = db.Column(db.String(50))
-    end_date = db.Column(db.String(50))
 
 
 class Class(db.Model):
@@ -81,8 +79,7 @@ class ExerciseXMember(db.Model):
     Member_ID = db.Column(db.Integer, db.ForeignKey('member.Member_ID'), primary_key=True)
     Exercise_ID = db.Column(db.Integer, db.ForeignKey('exercise.Exercise_ID'), primary_key=True)
     days_of_week = db.Column(db.String(50))
-    start_date = db.Column(db.String(50))
-    end_date = db.Column(db.String(50))
+
 
 
 class Exercise(db.Model):
@@ -185,6 +182,31 @@ def createsuer():
         uniqueName = True
         return render_template('createuser.html', uniqueName=uniqueName, trainers=trainers)
 
+@login_required
+@app.route("/signUp", methods=["POST", "GET"])
+def signUp():
+    if request.method == "GET":
+        user = current_user
+        user_signed_up_classes = ClassXMember.query.filter_by(Member_ID=user.Member_ID).with_entities(
+            ClassXMember.Class_ID).subquery()
+
+        classes_not_signed_up = Class.query.filter(Class.Class_ID.notin_(user_signed_up_classes)).all()
+        print(classes_not_signed_up)
+
+        return render_template("signUp.html", login=True, classes=classes_not_signed_up)
+    elif request.method == "POST":
+        user = current_user
+        class_id = request.form["class_id"]  # Retrieve the class ID from the form submission
+        class_to_add = Class.query.filter_by(Class_ID=class_id).first()
+        newClass = ClassXMember(
+            Member_ID=user.Member_ID,
+            Class_ID=class_to_add.Class_ID,
+        )
+        db.session.add(newClass)
+        db.session.commit()
+        login = True
+        return render_template('home.html', login=login, Fname=user.Fname)
+
 
 @login_required
 @app.route("/classes", methods=['POST', 'GET'])
@@ -217,15 +239,28 @@ def viewIndvClass():
     if request.method == 'GET':
         if 'class_types' in request.args:
             class_types = request.args.get('class_types')
+            print('class types1:', class_types)
             class_types = class_types.split(",")
-            print(class_types)
+            print('class types2:', class_types)
             for class_name in class_types:
+                print("class_name:", class_name)
+                class_name = class_name.strip()
                 classes = Class.query.filter_by(Type=class_name).all()  # Retrieve all classes with the given class name
+                print("classes:", classes)
                 class_info.extend(classes)
-
+                print('class_info:', class_info)
             return render_template("viewIndvClass.html", login=True, class_info=class_info)
-    else:
-        return render_template("viewIndvClass.html", login=True)
+    elif request.method == "POST":
+        class_id = request.form["class_id"]  # Retrieve the class ID from the form submission
+
+        deleted_row = ClassXMember.query.filter_by(Member_ID=current_user.Member_ID, Class_ID=class_id).delete()
+        if deleted_row:
+            db.session.commit()
+            flash('You have successfully unenrolled from the class.', 'success')
+        else:
+            flash('You were not enrolled in this class.', 'error')
+
+        return redirect(url_for('classes'))
 
 if __name__ == '__main__':
     app.run()

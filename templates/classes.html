@@ -175,6 +175,7 @@ menuIcon.addEventListener('click', () => {
 
 </script>
 <h1>View your classes</h1>
+<a href="/signUp">Sign up for classes</a>
 <div class="month">
   <ul>
     <li>
@@ -198,7 +199,7 @@ menuIcon.addEventListener('click', () => {
                 <span>{{ class_types|join(', ') }}</span>
             </a>
         {% else %}
-            <a href="/viewIndvClass?day={{ day }}">
+            <a href="/viewIndvClass?day={{ day }}&class_types=None">
                 <div>{{ day }}</div>
                 <span></span>
             </a>

@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}View Individual Class{% endblock %}
+{% block title %}Sign up for classes{% endblock %}
 
 {% block head %}{% endblock %}
 
 {% block nav %}
-
-    <nav>
+<nav>
         <div class="menu-icon">
             <span></span>
             <span></span>
@@ -31,7 +30,9 @@
 {% endblock %}
 
 {% block body %}
-
+{% if test == False %}
+<h3>Please enter all fields</h3>
+{% endif %}
 <style>
 
     /* Hamburger menu icon */
@@ -107,33 +108,29 @@ menuIcon.addEventListener('click', () => {
     menuContainer.style.display = menuContainer.style.display === 'none' ? 'block' : 'none';
 });
 
-    document.addEventListener("DOMContentLoaded", function() {
-    var classTypes = {{ class_types | default([]) | tojson }};
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/viewIndvClass?class_types=" + JSON.stringify(classTypes), true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            // Request was successful
-            console.log("Response:", xhr.responseText);
-        }
-    };
-    xhr.send();
-});
 </script>
 
+<html>
 <div class="form-container">
-    <h1>Individual Classes:</h1>
-    {% for class in class_info %}
-        <form action="/viewIndvClass" method="POST">
+    <h1> Classes:</h1>
+    {% for class in classes %}
+        <form action="/signUp" method="POST">
             <input type="hidden" name="class_id" value="{{ class.Class_ID }}">
             <h2>Name: {{class.Type}}</h2>
             <p2>Instructor: {{class.Instructor}}</p2>
             <p2>Days of Week: {{class.days_of_week}}</p2>
             <p2>Time: {{class.Time}}</p2>
-            <input type="submit" value="Drop class" class="submit">
+            <input type="submit" value="Enroll in class" class="submit">
         </form>
     {% endfor %}
     <a href="/classes">Back To Calendar</a>
 </div>
+</html>
 
 {% endblock %}
+class ClassXMember(db.Model):
+    __tablename__ = 'classxmember'
+    Member_ID = db.Column(db.Integer, db.ForeignKey('member.Member_ID'), primary_key=True)
+    Class_ID = db.Column(db.Integer, db.ForeignKey('class.Class_ID'), primary_key=True)
+    start_date = db.Column(db.String(50))
+    end_date = db.Column(db.String(50))
