@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}View Individual Class{% endblock %}
+{% block title %}Login User{% endblock %}
 
 {% block head %}{% endblock %}
 
 {% block nav %}
-
     <nav>
         <div class="menu-icon">
             <span></span>
@@ -98,6 +97,38 @@
       margin-bottom: 5px;
     }
 
+    .username,
+    .pWord {
+      width: 100%;
+      height: 30px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding-left: 8px;
+      margin-bottom: 10px;
+    }
+
+    .submit {
+      background: #b3b3b3;
+      width: 100%;
+      height: 30px;
+      border: none;
+      border-radius: 17px;
+      padding-left: 7px;
+      color: blue;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .submit:hover{
+        background-color: #9a9a9a;
+    }
+
+    .login_header{
+        vertical-align:middle;
+        margin:auto;
+        horizontal-align:middle;
+    }
 </style>
 
 <script>
@@ -108,33 +139,30 @@ menuIcon.addEventListener('click', () => {
     menuContainer.style.display = menuContainer.style.display === 'none' ? 'block' : 'none';
 });
 
-    document.addEventListener("DOMContentLoaded", function() {
-    var classTypes = {{ class_types | default([]) | tojson }};
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/viewIndvClass?class_types=" + JSON.stringify(classTypes), true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            // Request was successful
-            console.log("Response:", xhr.responseText);
-        }
-    };
-    xhr.send();
-});
 </script>
 
+<html>
 <div class="form-container">
-    <h1>Individual Classes:</h1>
-    {% for class in class_info %}
-        <form action="/viewIndvClass" method="POST">
-            <input type="hidden" name="class_id" value="{{ class.Class_ID }}">
-            <h2>Name: {{class.Type}}</h2>
-            <p2>Instructor: {{class.Instructor}}</p2>
-            <p2>Days of Week: {{class.days_of_week}}</p2>
-            <p2>Time: {{class.Time}}</p2>
-            <input type="submit" value="Drop class" class="submit">
-        </form>
-    {% endfor %}
-    <a href="/classes">Back To Calendar</a>
+    <form action="/editProfile" method='POST'>
+        <h1 class="login_header">Edit Membership</h1>
+        <h1>Welcome {{ user.Fname }},</h1>
+        <h1>Your membership tier: {{ tier }}</h1>
+        <h1>Benefits</h1>
+        {% for benefit in benefits %}
+            <p1>Area: {{ benefit.Area }}</p1>
+        {% endfor %}
+        <label for="membership_tier">Membership Tier:</label>
+        <select id="membership_tier" name="membership_tier">
+            <option value="Gold">Gold</option>
+            <option value="Silver">Silver</option>
+            <option value="Bronze">Bronze</option>
+        </select>
+        <input type="submit" name="submit" class="submit">
+
+    </form>
 </div>
+
+</html>
+
 
 {% endblock %}

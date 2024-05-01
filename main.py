@@ -29,6 +29,7 @@ class Membership_tier(db.Model):
 
 
 class Benefit_Tier(db.Model):
+    __tablename__ = "Benefit_Tier"
     Tier_ID = db.Column(db.Integer, db.ForeignKey('Membership_tier.ID'), primary_key=True)
     Benefit_ID = db.Column(db.Integer, db.ForeignKey('benefit.Benefit_ID'), primary_key=True)
 
@@ -261,6 +262,44 @@ def viewIndvClass():
             flash('You were not enrolled in this class.', 'error')
 
         return redirect(url_for('classes'))
+
+@login_required
+@app.route("/editProfile", methods=['POST', 'GET'])
+def editProfile():
+    if request.method == "POST":
+        # update the membership
+        user = current_user
+        new_tier_name = request.form.get("membership_tier")  # Retrieve the selected membership tier from the form
+
+        # Query the Membership_tier table to find the tier with the given name
+        new_tier = Membership_tier.query.filter_by(Name=new_tier_name).first()
+
+        if new_tier:
+            # Update the user's Tier_ID with the ID of the new tier
+            user.Tier_ID = new_tier.ID
+
+            # Commit the changes to the database
+            db.session.commit()
+
+            flash("Membership tier updated successfully", "success")
+        else:
+            flash("Invalid membership tier selected", "error")
+        return render_template('home.html', login=login, Fname=user.Fname)
+    else:
+        user = current_user
+        tier = Membership_tier.query.filter_by(ID=user.Tier_ID).first()
+
+        if tier:
+            benefitsxtier = Benefit_Tier.query.filter_by(Tier_ID=tier.ID).all()
+            benefit_ids = [benefit_tier.Benefit_ID for benefit_tier in benefitsxtier]
+            benefits = Benefit.query.filter(Benefit.Benefit_ID.in_(benefit_ids)).all()
+        else:
+            benefits = []
+
+        tier_name = tier.Name
+
+        return render_template("editProfile.html", login=True, user=user, tier=tier_name, benefits=benefits)
+
 
 if __name__ == '__main__':
     app.run()
