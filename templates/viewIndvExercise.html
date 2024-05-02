@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}View Individual Exercise{% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block nav %}
+
+    <nav>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-container">
+            {% if login %}
+                <ul>
+                    <li><a href="/classes">View Classes</a></li>
+                    <li><a href="/program">My Program</a></li>
+                    <li><a href="/editProfile">Edit Profile</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            {% else %}
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/createuser">Create New User</a></li>
+                    <li><a href="/login">Login</a></li>
+                </ul>
+            {% endif %}
+        </div>
+    </nav>
+{% endblock %}
+
+{% block body %}
+
+<style>
+
+    /* Hamburger menu icon */
+.menu-icon {
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: black;
+    margin-bottom: 5px;
+}
+
+
+.menu-container {
+    display: none;
+    position: absolute;
+    background-color: black;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.menu-container ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-container li a {
+    display: block;
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+}
+
+.menu-container li a:hover {
+    background-color: #ddd;
+}
+    .form-container {
+      /* box-shadow: 5px 5px lightblue; Can be added back in I just think it looks bad */
+      border: 3px solid #ccc;
+      padding: 20px;
+      text-align: center;
+      border-radius: 15px;
+      width: 30%;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    label {
+      margin-bottom: 5px;
+    }
+
+</style>
+
+<script>
+const menuIcon = document.querySelector('.menu-icon');
+const menuContainer = document.querySelector('.menu-container');
+
+menuIcon.addEventListener('click', () => {
+    menuContainer.style.display = menuContainer.style.display === 'none' ? 'block' : 'none';
+});
+
+    document.addEventListener("DOMContentLoaded", function() {
+    var exerciseTypes = {{ exercise_types | default([]) | tojson }};
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/viewIndvExercise?class_types=" + JSON.stringify(exerciseTypes), true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // Request was successful
+            console.log("Response:", xhr.responseText);
+        }
+    };
+    xhr.send();
+});
+</script>
+
+<div class="form-container">
+    <h1>Individual Exercises:</h1>
+    {% for exercise in exercise_info %}
+        <form action="/viewIndvExercise" method="POST">
+            <input type="hidden" name="exercise_id" value="{{ exercise.Exercise_ID }}">
+            <h2>Name: {{exercise.Type}}</h2>
+            <p2>Reps: {{exercise.Reps}}</p2>
+            <p2>Sets: {{exercise.Sets}}</p2>
+            <p2>Weight: {{exercise.Weight}}</p2>
+            <input type="submit" value="Drop Exercise" class="submit">
+        </form>
+    {% endfor %}
+    <a href="/program">Back To Calendar</a>
+</div>
+
+{% endblock %}

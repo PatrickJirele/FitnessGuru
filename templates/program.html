@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Fitness Guru Inc. {% endblock %}
+
+{% block head %}{% endblock %}
+
+{% block nav %}
+    <nav>
+        <div class="menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="menu-container">
+            {% if login %}
+                <ul>
+                    <li><a href="/classes">View Classes</a></li>
+                    <li><a href="/program">My Program</a></li>
+                    <li><a href="/editProfile">Edit Profile</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            {% else %}
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/createuser">Create New User</a></li>
+                    <li><a href="/login">Login</a></li>
+                </ul>
+            {% endif %}
+        </div>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<style>
+/* Hamburger menu icon */
+.menu-icon {
+    display: block;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.menu-icon span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: black;
+    margin-bottom: 5px;
+}
+
+.menu-container {
+    display: none;
+    position: absolute;
+    background-color: black;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.menu-container ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-container li a {
+    display: block;
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+}
+
+.menu-container li a:hover {
+    background-color: #ddd;
+}
+
+.welcome_page {
+    width: 500px; /* Set the width of your div */
+    margin: 0 auto; /* Set the top and bottom margins to 0 and the left and right margins to auto */
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+* {box-sizing: border-box;}
+ul {list-style-type: none;}
+body {font-family: Verdana, sans-serif;}
+
+.month {
+    padding: 45px 20px;
+    width: 100%;
+    background: #1abc9c;
+    text-align: center;
+}
+
+.month ul {
+    margin: 0;
+    padding: 0;
+}
+
+.month ul li {
+    color: white;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.month .prev {
+    float: left;
+    padding-top: 10px;
+}
+
+.month .next {
+    float: right;
+    padding-top: 10px;
+}
+
+.days {
+    padding: 10px 0;
+    background: #eee;
+    margin: 0;
+}
+
+.days li {
+    list-style-type: none;
+    display: inline-block;
+    width: 12.5%; /* Adjusted width to fit all seven days */
+    text-align: center;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #777;
+    border: 1px solid #ccc;
+    height: 100px; /* Adjusted height to fit content */
+    line-height: 100px; /* Center the content vertically */
+    box-sizing: border-box; /* Ensure that padding and border are included in the width */
+    position: relative; /* Add position relative for absolute positioning of span */
+}
+
+.days li a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: #333;
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.days li a:hover {
+    background-color: #76848c;
+}
+
+.days li span {
+    position: absolute;
+    bottom: -25px; /* Adjust the vertical position of the placeholder */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 10px; /* Adjust the font size of the placeholder */
+    color: #777; /* Adjust the color of the placeholder */
+}
+</style>
+
+
+<script>
+const menuIcon = document.querySelector('.menu-icon');
+const menuContainer = document.querySelector('.menu-container');
+
+menuIcon.addEventListener('click', () => {
+    menuContainer.style.display = menuContainer.style.display === 'none' ? 'block' : 'none';
+});
+
+</script>
+<h1>View your exercises</h1>
+
+<div class="month">
+  <ul>
+    <li>
+      May<br>
+      <span style="font-size:18px">2033</span>
+    </li>
+  </ul>
+</div>
+<ul class="days">
+    {% for day in range(1, 32) %}
+    <li>
+        {% set exercise_types = [] %}
+        {% for exercise_type, exercise_days in days.items() %}
+            {% if day in exercise_days %}
+                {% if exercise_types.append(exercise_type) %}{% endif %}
+            {% endif %}
+        {% endfor %}
+        {% if exercise_types %}
+            <a href="/viewIndvExercise?day={{ day }}&exercise_types={{ exercise_types|join(',') }}">
+                <div>{{ day }}</div>
+                <span>{{ exercise_types|join(', ') }}</span>
+            </a>
+        {% else %}
+            <a href="/viewIndvExercise?day={{ day }}&exercise_types=None">
+                <div>{{ day }}</div>
+                <span></span>
+            </a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

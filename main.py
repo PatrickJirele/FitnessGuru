@@ -79,7 +79,6 @@ class ExerciseXMember(db.Model):
     __tablename__ = 'exercisexmember'
     Member_ID = db.Column(db.Integer, db.ForeignKey('member.Member_ID'), primary_key=True)
     Exercise_ID = db.Column(db.Integer, db.ForeignKey('exercise.Exercise_ID'), primary_key=True)
-    days_of_week = db.Column(db.String(50))
 
 
 
@@ -91,6 +90,8 @@ class Exercise(db.Model):
     Reps = db.Column(db.Integer)
     Weight = db.Column(db.Double)
     Sets = db.Column(db.Integer)
+    days_of_week = db.Column(db.String(50))
+
 
 
 @app.route('/')
@@ -264,6 +265,35 @@ def viewIndvClass():
         return redirect(url_for('classes'))
 
 @login_required
+@app.route("/viewIndvExercise", methods=['POST', 'GET'])
+def viewIndvExercise():
+    exercise_info = []
+    if request.method == 'GET':
+        if 'exercise_types' in request.args:
+            exercise_types = request.args.get('exercise_types')
+            print('exercise types1:', exercise_types)
+            exercise_types = exercise_types.split(",")
+            print('exercise types2:', exercise_types)
+            for exercise_name in exercise_types:
+                print("exercise_name:", exercise_name)
+                exercise_name = exercise_name.strip()
+                exercises = Exercise.query.filter_by(Type=exercise_name).all()
+                print("exercises:", exercises)
+                exercise_info.extend(exercises)
+                print('exercise_info:', exercise_info)
+            return render_template("viewIndvExercise.html", login=True, exercise_info=exercise_info)
+    elif request.method == "POST":
+        exercise_id = request.form["exercise_id"]
+
+        deleted_row = ExerciseXMember.query.filter_by(Member_ID=current_user.Member_ID, Exercise_ID=exercise_id).delete()
+        if deleted_row:
+            db.session.commit()
+        else:
+            flash('You were not doing in this exercise.', 'error')
+
+        return redirect(url_for('program'))
+
+@login_required
 @app.route("/editProfile", methods=['POST', 'GET'])
 def editProfile():
     if request.method == "POST":
@@ -300,6 +330,28 @@ def editProfile():
 
         return render_template("editProfile.html", login=True, user=user, tier=tier_name, benefits=benefits)
 
+@login_required
+@app.route("/program")
+def program():
+    user = current_user
+    user_exercise = db.session.query(Exercise, ExerciseXMember).join(ExerciseXMember).filter(
+        ExerciseXMember.Member_ID == user.Member_ID).all()
+
+    exercise_info = [(exercise.Type, exercise.days_of_week) for exercise, _ in user_exercise]
+    print(exercise_info)
+    days = {}
+    for exercise_type, days_of_week in exercise_info:
+        days_of_week = days_of_week.strip()  # Remove any leading or trailing spaces
+        if days_of_week == "MWF":
+            days[exercise_type] = []
+            for i in range(2, 32, 7):
+                days[exercise_type].extend([i, i + 2, i + 4])
+        elif days_of_week == "TR":
+            days[exercise_type] = []
+            for i in range(3, 32, 7):
+                days[exercise_type].extend([i, i + 2])
+
+    return render_template('program.html', login=True, exercise_info=exercise_info, days=days)
 
 if __name__ == '__main__':
     app.run()
