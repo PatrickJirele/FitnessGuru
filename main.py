@@ -184,8 +184,9 @@ def createsuer():
         uniqueName = True
         return render_template('createuser.html', uniqueName=uniqueName, trainers=trainers)
 
-@login_required
+
 @app.route("/signUp", methods=["POST", "GET"])
+@login_required
 def signUp():
     if request.method == "GET":
         user = current_user
@@ -210,8 +211,9 @@ def signUp():
         return render_template('home.html', login=login, Fname=user.Fname)
 
 
-@login_required
+
 @app.route("/classes", methods=['POST', 'GET'])
+@login_required
 def classes():
     user = current_user
     user_classes = db.session.query(Class, ClassXMember).join(ClassXMember).filter(
@@ -234,8 +236,9 @@ def classes():
     return render_template("classes.html", login=True, class_info=class_info, days=days)
 
 
-@login_required
+
 @app.route("/viewIndvClass", methods=['POST', 'GET'])
+@login_required
 def viewIndvClass():
     class_info = []
     if request.method == 'GET':
@@ -264,8 +267,9 @@ def viewIndvClass():
 
         return redirect(url_for('classes'))
 
-@login_required
+
 @app.route("/viewIndvExercise", methods=['POST', 'GET'])
+@login_required
 def viewIndvExercise():
     exercise_info = []
     if request.method == 'GET':
@@ -293,22 +297,20 @@ def viewIndvExercise():
 
         return redirect(url_for('program'))
 
-@login_required
+
 @app.route("/editProfile", methods=['POST', 'GET'])
+@login_required
 def editProfile():
     if request.method == "POST":
         # update the membership
         user = current_user
         new_tier_name = request.form.get("membership_tier")  # Retrieve the selected membership tier from the form
 
-        # Query the Membership_tier table to find the tier with the given name
         new_tier = Membership_tier.query.filter_by(Name=new_tier_name).first()
 
         if new_tier:
-            # Update the user's Tier_ID with the ID of the new tier
             user.Tier_ID = new_tier.ID
 
-            # Commit the changes to the database
             db.session.commit()
 
             flash("Membership tier updated successfully", "success")
@@ -330,8 +332,9 @@ def editProfile():
 
         return render_template("editProfile.html", login=True, user=user, tier=tier_name, benefits=benefits)
 
-@login_required
+
 @app.route("/program")
+@login_required
 def program():
     user = current_user
     user_exercise = db.session.query(Exercise, ExerciseXMember).join(ExerciseXMember).filter(
@@ -352,6 +355,23 @@ def program():
                 days[exercise_type].extend([i, i + 2])
 
     return render_template('program.html', login=True, exercise_info=exercise_info, days=days)
+
+
+@app.errorhandler(404)
+def err404(err):
+    return render_template("err.html", errNum = 404, typeErr = err, login = False)
+
+@app.errorhandler(403)
+def err404(err):
+    return render_template("err.html", errNum = 403, typeErr = err, login = False)
+
+@app.errorhandler(502)
+def err404(err):
+    return render_template("err.html", errNum = 502, typeErr = err, login = False)
+
+@app.errorhandler(401)
+def err404(err):
+    return render_template("err.html", errNum = 401, typeErr = err, login = False)
 
 if __name__ == '__main__':
     app.run()
