@@ -74,17 +74,23 @@
     background-color: #ddd;
 }
   .welcome_page {
-    width: 500px; /* Set the width of your div */
+    width: 800px; /* Set the width of your div */
     margin: 0 auto; /* Set the top and bottom margins to 0 and the left and right margins to auto */
     /* background-color: #f0f0f0; */
     padding-top: 50px;
     padding-left: 50px;
     padding-right: 50px;
+    text-align: center;
+    justify-content: center;
 }
 
 .welcome_page h1{
     text-transform: uppercase;
     font-size: 2.5em;
+}
+
+.welcome_page img{
+    padding-left: 100px;
 }
 
 
@@ -104,6 +110,7 @@ menuIcon.addEventListener('click', () => {
 </script>
 
 <div class="welcome_page">
+    <img src="static/logo.png" alt="logo">
     <h1 class="welcome_page">Welcome to Fitness Guru!</h1>
     {% if login %}
     <br>
