@@ -103,6 +103,18 @@
         background-color: #F5E2DC;
     }
 
+    .back_link{
+        text-transform: uppercase;
+    }
+
+    .back_link a{
+        color: #333;
+    }
+
+    .back_link a:hover{
+        color: #76848c;
+    }
+
 </style>
 
 <script>
@@ -128,7 +140,9 @@ menuIcon.addEventListener('click', () => {
             <input type="submit" value="Enroll in class" class="submit">
         </form>
     {% endfor %}
-    <a href="/classes">Back To Calendar</a>
+    <p class="back_link">
+        <a href="/classes">Back To Calendar</a>
+    </p>
 </div>
 </html>
 
